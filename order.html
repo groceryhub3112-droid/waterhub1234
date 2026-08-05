@@ -108,23 +108,22 @@ document.getElementById("totalPrice").innerHTML="💰 Total Price: ₹"+total;
 
 function sendOrder(){
 
-let name=document.getElementById("name").value;
-let phone=document.getElementById("phone").value;
-let address=document.getElementById("address").value;
+let name=document.getElementById("name").value.trim();
+let phone=document.getElementById("phone").value.trim();
+let address=document.getElementById("address").value.trim();
 let size=document.getElementById("size").value;
 let qty=document.getElementById("qty").value;
 let date=document.getElementById("date").value;
 let time=document.getElementById("time").value;
-  
+
 if(!name || !phone || !address || !qty || !date || !time){
     alert("সব তথ্য পূরণ করুন।");
     return;
 }
-  
-let total=prices[size]*qty;
 
-let msg =
-`💧 WATER HUB 2.0
+let total = prices[size] * Number(qty);
+
+let msg = `💧 WATER HUB 2.0
 
 নাম: ${name}
 মোবাইল: ${phone}
@@ -135,10 +134,11 @@ let msg =
 
 ডেলিভারি তারিখ: ${date}
 ডেলিভারি সময়: ${time}`;
-window.open(
-  "https://wa.me/917866945566?text=" + encodeURIComponent(msg),
-  "_blank"
-);
+
+let url = "https://api.whatsapp.com/send?phone=917866945566&text=" + encodeURIComponent(msg);
+
+location.href = url;
+
 }
 
 </script>
