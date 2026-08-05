@@ -119,16 +119,21 @@ let time=document.getElementById("time").value;
 let total=prices[size]*qty;
 
 let msg =
-"💧 WATER HUB 2.0%0A%0A"+
-"নাম: "+name+"%0A"+
-"মোবাইল: "+phone+"%0A"+
-"ঠিকানা: "+address+"%0A"+
-"বোতল: "+size+"%0A"+
-"পরিমাণ: "+qty+"%0A"+
-"মোট দাম: ₹"+total+"%0A"+
-"ডেলিভারি তারিখ: "+date+"%0A"+
-"ডেলিভারি সময়: "+time;
-window.open("https://wa.me/917866945566?text=" + encodeURIComponent(msg));
+`💧 WATER HUB 2.0
+
+নাম: ${name}
+মোবাইল: ${phone}
+ঠিকানা: ${address}
+বোতল: ${size}
+পরিমাণ: ${qty}
+মোট দাম: ₹${total}
+
+ডেলিভারি তারিখ: ${date}
+ডেলিভারি সময়: ${time}`;
+window.open(
+  "https://wa.me/917866945566?text=" + encodeURIComponent(msg),
+  "_blank"
+);
 }
 
 </script>
