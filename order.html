@@ -115,7 +115,12 @@ let size=document.getElementById("size").value;
 let qty=document.getElementById("qty").value;
 let date=document.getElementById("date").value;
 let time=document.getElementById("time").value;
-
+  
+if(!name || !phone || !address || !qty || !date || !time){
+    alert("সব তথ্য পূরণ করুন।");
+    return;
+}
+  
 let total=prices[size]*qty;
 
 let msg =
