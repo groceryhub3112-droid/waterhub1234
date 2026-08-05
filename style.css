@@ -152,3 +152,11 @@ z-index:999;
 transform:scale(1.1);
 transition:.3s;
 }
+.hero-banner{
+width:100%;
+max-width:900px;
+border-radius:20px;
+margin:20px auto;
+display:block;
+box-shadow:0 8px 20px rgba(0,0,0,.2);
+}
