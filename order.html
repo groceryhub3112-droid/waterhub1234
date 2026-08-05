@@ -53,7 +53,7 @@ cursor:pointer;
 
 <input id="address" placeholder="ঠিকানা">
 
-<select id="size">
+<select id="size" onchange="updatePrice()">
 <option>250 ml</option>
 <option>500 ml</option>
 <option>1 Litre</option>
@@ -63,7 +63,8 @@ cursor:pointer;
 <option>20 Litre</option>
 </select>
 
-<input id="qty" type="number" placeholder="কতটি লাগবে">
+<input id="qty" type="number" placeholder="কতটি লাগবে" oninput="updatePrice()">
+<h3 id="totalPrice">💰 Total Price: ₹0</h3>
 <label>📅 Delivery Date</label>
 <input id="date" type="date">
 
@@ -74,6 +75,24 @@ cursor:pointer;
 </div>
 
 <script>
+  const prices = {
+  "250 ml":150,
+  "500 ml":110,
+  "1 Litre":90,
+  "2 Litre":110,
+  "5 Litre":38,
+  "10 Litre":50,
+  "20 Litre":40
+};
+
+function updatePrice(){
+  let size = document.getElementById("size").value;
+  let qty = Number(document.getElementById("qty").value) || 0;
+
+  let total = prices[size] * qty;
+  document.getElementById("totalPrice").innerHTML =
+    "💰 Total Price: ₹" + total;
+}
 function sendOrder(){
 
 let name=document.getElementById("name").value;
