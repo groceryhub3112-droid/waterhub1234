@@ -13,7 +13,7 @@ padding:20px;
 text-align:center;
 }
 .box{
-max-width:400px;
+max-width:420px;
 margin:auto;
 background:#fff;
 padding:20px;
@@ -27,6 +27,7 @@ margin:10px 0;
 border-radius:10px;
 border:1px solid #ccc;
 font-size:16px;
+box-sizing:border-box;
 }
 button{
 width:100%;
@@ -38,12 +39,17 @@ border-radius:10px;
 font-size:18px;
 cursor:pointer;
 }
+#totalPrice{
+color:#e53935;
+font-size:22px;
+}
 </style>
-</head>
 
+</head>
 <body>
 
 <div class="box">
+
 <h2>💧 WATER HUB 2.0</h2>
 <h3>Order Form</h3>
 
@@ -64,35 +70,42 @@ cursor:pointer;
 </select>
 
 <input id="qty" type="number" placeholder="কতটি লাগবে" oninput="updatePrice()">
+
 <h3 id="totalPrice">💰 Total Price: ₹0</h3>
+
 <label>📅 Delivery Date</label>
 <input id="date" type="date">
 
 <label>🕒 Delivery Time</label>
 <input id="time" type="time">
+
 <button onclick="sendOrder()">📲 WhatsApp Order</button>
 
 </div>
 
 <script>
-  const prices = {
-  "250 ml":150,
-  "500 ml":110,
-  "1 Litre":90,
-  "2 Litre":110,
-  "5 Litre":38,
-  "10 Litre":50,
-  "20 Litre":40
+
+const prices={
+"250 ml":150,
+"500 ml":110,
+"1 Litre":90,
+"2 Litre":110,
+"5 Litre":38,
+"10 Litre":50,
+"20 Litre":40
 };
 
 function updatePrice(){
-  let size = document.getElementById("size").value;
-  let qty = Number(document.getElementById("qty").value) || 0;
 
-  let total = prices[size] * qty;
-  document.getElementById("totalPrice").innerHTML =
-    "💰 Total Price: ₹" + total;
+let size=document.getElementById("size").value;
+let qty=Number(document.getElementById("qty").value)||0;
+
+let total=prices[size]*qty;
+
+document.getElementById("totalPrice").innerHTML="💰 Total Price: ₹"+total;
+
 }
+
 function sendOrder(){
 
 let name=document.getElementById("name").value;
@@ -100,22 +113,26 @@ let phone=document.getElementById("phone").value;
 let address=document.getElementById("address").value;
 let size=document.getElementById("size").value;
 let qty=document.getElementById("qty").value;
-let date = document.getElementById("date").value;
-let time = document.getElementById("time").value;  
+let date=document.getElementById("date").value;
+let time=document.getElementById("time").value;
 
-let msg =
-"💧 WATER HUB 2.0%0A%0A"+
-"নাম: "+name+"%0A"+
-"মোবাইল: "+phone+"%0A"+
-"ঠিকানা: "+address+"%0A"+
-"বোতল: "+size+"%0A"+
-"পরিমাণ: "+qty+"%0A"+
-"ডেলিভারি তারিখ: "+date+"%0A"+
-"ডেলিভারি সময়: "+time;
+let total=prices[size]*qty;
 
-window.open("https://wa.me/917866945566?text="+msg);
+let msg=`💧 WATER HUB 2.0
+
+নাম: ${name}
+মোবাইল: ${phone}
+ঠিকানা: ${address}
+বোতল: ${size}
+পরিমাণ: ${qty}
+মোট দাম: ₹${total}
+ডেলিভারি তারিখ: ${date}
+ডেলিভারি সময়: ${time}`;
+
+window.open("https://wa.me/917866945566?text="+encodeURIComponent(msg),"_blank");
 
 }
+
 </script>
 
 </body>
