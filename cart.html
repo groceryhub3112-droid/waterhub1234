@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shopping Cart - WATER HUB 2.0</title>
+
+<style>
+body{
+    font-family:Arial,sans-serif;
+    background:#eef8ff;
+    margin:0;
+    padding:20px;
+}
+
+h1{
+    text-align:center;
+    color:#0077cc;
+}
+
+#cart-items{
+    max-width:700px;
+    margin:auto;
+}
+
+.item{
+    background:#fff;
+    padding:15px;
+    margin:15px 0;
+    border-radius:15px;
+    box-shadow:0 5px 15px rgba(0,0,0,.15);
+}
+
+.total{
+    text-align:center;
+    font-size:24px;
+    font-weight:bold;
+    color:#e53935;
+    margin-top:20px;
+}
+
+.btn{
+    display:block;
+    width:250px;
+    margin:20px auto;
+    padding:15px;
+    background:#0d6efd;
+    color:white;
+    text-align:center;
+    text-decoration:none;
+    border-radius:12px;
+    font-size:18px;
+}
+</style>
+</head>
+
+<body>
+
+<h1>🛒 Shopping Cart</h1>
+
+<div id="cart-items"></div>
+
+<h2 class="total">Total: ₹<span id="total">0</span></h2>
+
+<a href="order.html" class="btn">Proceed to Order</a>
+
+<script src="script.js"></script>
+
+</body>
+</html>
