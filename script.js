@@ -38,3 +38,54 @@ function callNow() {
 function whatsappNow() {
   window.open("https://wa.me/917866945566", "_blank");
 }
+// ===== Cart Page =====
+
+function loadCart(){
+
+let cart = JSON.parse(localStorage.getItem("cart")) || [];
+
+let cartItems = document.getElementById("cart-items");
+
+if(!cartItems) return;
+
+cartItems.innerHTML = "";
+
+let total = 0;
+
+cart.forEach((item,index)=>{
+
+total += item.price;
+
+cartItems.innerHTML += `
+<div class="item">
+<h3>${item.name}</h3>
+<p>Price: ₹${item.price}</p>
+
+<button onclick="removeItem(${index})">
+❌ Remove
+</button>
+
+</div>
+`;
+
+});
+
+document.getElementById("total").innerText = total;
+
+}
+
+function removeItem(index){
+
+let cart = JSON.parse(localStorage.getItem("cart")) || [];
+
+cart.splice(index,1);
+
+localStorage.setItem("cart",JSON.stringify(cart));
+
+loadCart();
+
+updateCartCount();
+
+}
+
+document.addEventListener("DOMContentLoaded",loadCart);
