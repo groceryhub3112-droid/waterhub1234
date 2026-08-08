@@ -3,143 +3,553 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>Order - WATER HUB 2.0</title>
 
 <style>
+
 body{
 font-family:Arial,sans-serif;
 background:#eef8ff;
 padding:20px;
 text-align:center;
+margin:0;
 }
+
 .box{
-max-width:420px;
+max-width:520px;
 margin:auto;
 background:#fff;
-padding:20px;
-border-radius:15px;
-box-shadow:0 5px 15px rgba(0,0,0,.2);
+padding:25px;
+border-radius:20px;
+box-shadow:0 8px 25px rgba(0,0,0,.15);
 }
-input,select{
-width:100%;
-padding:12px;
+
+h2{
+font-size:28px;
+margin-bottom:5px;
+}
+
+h3{
+margin-top:10px;
+}
+
+/* CART LIST */
+
+.cart-title{
+color:#0077cc;
+font-size:22px;
+margin-top:20px;
+}
+
+.cart-item{
+background:#f5faff;
+border:1px solid #d9ecff;
+border-radius:15px;
+padding:15px;
 margin:10px 0;
-border-radius:10px;
+text-align:left;
+}
+
+.cart-item-name{
+font-size:18px;
+font-weight:bold;
+color:#222;
+}
+
+.cart-item-info{
+margin-top:6px;
+color:#555;
+font-size:16px;
+}
+
+.cart-item-total{
+margin-top:6px;
+font-weight:bold;
+color:#0077cc;
+}
+
+.empty-cart{
+background:#fff3f3;
+color:#e53935;
+padding:15px;
+border-radius:12px;
+margin:15px 0;
+}
+
+/* TOTAL */
+
+#totalPrice{
+color:#e53935;
+font-size:24px;
+font-weight:bold;
+margin:20px 0;
+}
+
+/* INPUT */
+
+input{
+width:100%;
+padding:14px;
+margin:8px 0;
+border-radius:12px;
 border:1px solid #ccc;
 font-size:16px;
 box-sizing:border-box;
 }
+
+label{
+display:block;
+text-align:left;
+font-weight:bold;
+margin-top:12px;
+}
+
+/* BUTTON */
+
 button{
 width:100%;
 padding:15px;
 background:#00aa55;
 color:white;
 border:none;
-border-radius:10px;
+border-radius:12px;
 font-size:18px;
+font-weight:bold;
 cursor:pointer;
+margin-top:15px;
 }
-#totalPrice{
-color:#e53935;
-font-size:22px;
+
+button:hover{
+background:#008844;
 }
+
+.back-btn{
+display:block;
+background:#0d6efd;
+color:white;
+text-decoration:none;
+padding:13px;
+border-radius:12px;
+margin-top:12px;
+font-weight:bold;
+}
+
 </style>
 
 </head>
+
 <body>
 
 <div class="box">
 
 <h2>💧 WATER HUB 2.0</h2>
-<h3>Order Form</h3>
 
-<input id="name" placeholder="আপনার নাম">
+<h3>🛒 আপনার অর্ডার</h3>
 
-<input id="phone" placeholder="মোবাইল নম্বর">
+<div id="cartItems"></div>
 
-<input id="address" placeholder="ঠিকানা">
+<h3 id="totalPrice">
+💰 Total Price: ₹0
+</h3>
 
-<select id="size" onchange="updatePrice()">
-<option>250 ml</option>
-<option>500 ml</option>
-<option>1 Litre</option>
-<option>2 Litre</option>
-<option>5 Litre</option>
-<option>10 Litre</option>
-<option>20 Litre</option>
-</select>
+<hr>
 
-<input id="qty" type="number" placeholder="কতটি লাগবে" oninput="updatePrice()">
+<h3>📦 Delivery Details</h3>
 
-<h3 id="totalPrice">💰 Total Price: ₹0</h3>
+<input
+id="name"
+placeholder="আপনার নাম">
+
+<input
+id="phone"
+placeholder="মোবাইল নম্বর"
+type="tel">
+
+<input
+id="address"
+placeholder="ঠিকানা">
 
 <label>📅 Delivery Date</label>
-<input id="date" type="date">
+
+<input
+id="date"
+type="date">
 
 <label>🕒 Delivery Time</label>
-<input id="time" type="time">
 
-<button onclick="sendOrder()">📲 WhatsApp Order</button>
+<input
+id="time"
+type="time">
+
+<button onclick="sendOrder()">
+📲 WhatsApp Order
+</button>
+
+<a href="index.html" class="back-btn">
+🛒 আরও পণ্য দেখুন
+</a>
 
 </div>
 
+
 <script>
 
-const prices={
-"250 ml":150,
-"500 ml":110,
-"1 Litre":90,
-"2 Litre":110,
-"5 Litre":38,
-"10 Litre":50,
-"20 Litre":40
+/* =========================
+   PRODUCT PRICES
+========================= */
+
+const prices = {
+
+"250 ml Water":120,
+"500 ml Water":110,
+"1 Litre Water":90,
+"2 Litre Water":110,
+"5 Litre Water":38,
+"10 Litre Water":58,
+"20 Litre Water":40
+
 };
 
-function updatePrice(){
 
-let size=document.getElementById("size").value;
-let qty=Number(document.getElementById("qty").value)||0;
+/* =========================
+   GET CART
+========================= */
 
-let total=prices[size]*qty;
+function getCart(){
 
-document.getElementById("totalPrice").innerHTML="💰 Total Price: ₹"+total;
+let cart = localStorage.getItem("cart");
+
+if(!cart){
+    cart = localStorage.getItem("cartItems");
+}
+
+if(!cart){
+    cart = localStorage.getItem("shoppingCart");
+}
+
+if(!cart){
+    return [];
+}
+
+try{
+
+return JSON.parse(cart);
+
+}catch(error){
+
+return [];
 
 }
+
+}
+
+
+/* =========================
+   SHOW CART
+========================= */
+
+function showCart(){
+
+let cart = getCart();
+
+let cartBox = document.getElementById("cartItems");
+
+let total = 0;
+
+
+/* CART EMPTY */
+
+if(cart.length === 0){
+
+cartBox.innerHTML = `
+<div class="empty-cart">
+🛒 আপনার Cart খালি।
+</div>
+`;
+
+document.getElementById("totalPrice").innerHTML =
+"💰 Total Price: ₹0";
+
+return;
+
+}
+
+
+/* COUNT SAME PRODUCTS */
+
+let products = {};
+
+cart.forEach(item => {
+
+let name = "";
+
+let price = 0;
+
+
+/* যদি cart-এ object থাকে */
+
+if(typeof item === "object"){
+
+name =
+item.name ||
+item.product ||
+item.title ||
+"Unknown Product";
+
+price =
+Number(item.price) ||
+prices[name] ||
+0;
+
+}
+
+/* যদি cart-এ শুধু নাম থাকে */
+
+else{
+
+name = item;
+
+price = prices[name] || 0;
+
+}
+
+
+/* একই পণ্য একসাথে COUNT */
+
+if(!products[name]){
+
+products[name] = {
+qty:0,
+price:price
+};
+
+}
+
+products[name].qty++;
+
+});
+
+
+/* SHOW PRODUCTS */
+
+cartBox.innerHTML = `
+<div class="cart-title">
+🛒 আপনি যা অর্ডার করেছেন
+</div>
+`;
+
+
+Object.keys(products).forEach(name => {
+
+let qty = products[name].qty;
+
+let price = products[name].price;
+
+let itemTotal = qty * price;
+
+total += itemTotal;
+
+
+cartBox.innerHTML += `
+
+<div class="cart-item">
+
+<div class="cart-item-name">
+💧 ${name}
+</div>
+
+<div class="cart-item-info">
+পরিমাণ: ${qty} টি × ₹${price}
+</div>
+
+<div class="cart-item-total">
+মোট: ₹${itemTotal}
+</div>
+
+</div>
+
+`;
+
+});
+
+
+/* TOTAL */
+
+document.getElementById("totalPrice").innerHTML =
+"💰 Total Price: ₹" + total;
+
+}
+
+
+/* =========================
+   SEND WHATSAPP ORDER
+========================= */
 
 function sendOrder(){
 
-let name=document.getElementById("name").value.trim();
-let phone=document.getElementById("phone").value.trim();
-let address=document.getElementById("address").value.trim();
-let size=document.getElementById("size").value;
-let qty=document.getElementById("qty").value;
-let date=document.getElementById("date").value;
-let time=document.getElementById("time").value;
+let name =
+document.getElementById("name").value.trim();
 
-if(!name || !phone || !address || !qty || !date || !time){
-    alert("সব তথ্য পূরণ করুন।");
-    return;
+let phone =
+document.getElementById("phone").value.trim();
+
+let address =
+document.getElementById("address").value.trim();
+
+let date =
+document.getElementById("date").value;
+
+let time =
+document.getElementById("time").value;
+
+
+if(!name || !phone || !address || !date || !time){
+
+alert("সব তথ্য পূরণ করুন।");
+
+return;
+
 }
 
-let total = prices[size] * Number(qty);
+
+let cart = getCart();
+
+
+if(cart.length === 0){
+
+alert("আপনার Cart খালি।");
+
+return;
+
+}
+
+
+let products = {};
+
+let total = 0;
+
+
+/* CREATE PRODUCT LIST */
+
+cart.forEach(item => {
+
+let productName = "";
+
+let price = 0;
+
+
+if(typeof item === "object"){
+
+productName =
+item.name ||
+item.product ||
+item.title ||
+"Unknown Product";
+
+price =
+Number(item.price) ||
+prices[productName] ||
+0;
+
+}else{
+
+productName = item;
+
+price = prices[productName] || 0;
+
+}
+
+
+if(!products[productName]){
+
+products[productName] = {
+qty:0,
+price:price
+};
+
+}
+
+products[productName].qty++;
+
+});
+
+
+/* WHATSAPP MESSAGE */
 
 let msg = `💧 WATER HUB 2.0
 
-নাম: ${name}
-মোবাইল: ${phone}
-ঠিকানা: ${address}
-বোতল: ${size}
-পরিমাণ: ${qty}
-মোট দাম: ₹${total}
+🛒 নতুন অর্ডার
 
-ডেলিভারি তারিখ: ${date}
-ডেলিভারি সময়: ${time}`;
+━━━━━━━━━━━━━━
 
-let url = "https://api.whatsapp.com/send?phone=917866945566&text=" + encodeURIComponent(msg);
+👤 নাম: ${name}
+
+📞 মোবাইল: ${phone}
+
+📍 ঠিকানা: ${address}
+
+━━━━━━━━━━━━━━
+
+📦 অর্ডারের তালিকা:
+
+`;
+
+
+Object.keys(products).forEach(productName => {
+
+let qty = products[productName].qty;
+
+let price = products[productName].price;
+
+let itemTotal = qty * price;
+
+total += itemTotal;
+
+
+msg += `💧 ${productName}
+পরিমাণ: ${qty} টি
+দাম: ₹${price}
+মোট: ₹${itemTotal}
+
+`;
+
+});
+
+
+msg += `
+━━━━━━━━━━━━━━
+
+💰 সর্বমোট: ₹${total}
+
+📅 Delivery Date: ${date}
+
+🕒 Delivery Time: ${time}
+
+━━━━━━━━━━━━━━
+
+ধন্যবাদ ❤️
+WATER HUB 2.0
+`;
+
+
+/* OPEN WHATSAPP */
+
+let url =
+"https://api.whatsapp.com/send?phone=917866945566&text="
++ encodeURIComponent(msg);
+
 
 location.href = url;
 
 }
+
+
+/* =========================
+   LOAD CART
+========================= */
+
+showCart();
 
 </script>
 
