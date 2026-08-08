@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Order History - WATER HUB 2.0</title>
+
+<style>
+
+body{
+    font-family:Arial,sans-serif;
+    background:#eef8ff;
+    margin:0;
+    padding:20px;
+}
+
+.container{
+    max-width:600px;
+    margin:auto;
+}
+
+h1{
+    text-align:center;
+    color:#0077cc;
+}
+
+.history-card{
+    background:white;
+    padding:18px;
+    margin:15px 0;
+    border-radius:18px;
+    box-shadow:0 6px 18px rgba(0,0,0,.15);
+}
+
+.order-title{
+    font-size:20px;
+    font-weight:bold;
+    color:#0077cc;
+}
+
+.order-date{
+    color:#666;
+    margin:8px 0;
+}
+
+.product{
+    background:#f5faff;
+    padding:10px;
+    margin:7px 0;
+    border-radius:10px;
+}
+
+.total{
+    color:#e53935;
+    font-size:20px;
+    font-weight:bold;
+    margin-top:12px;
+}
+
+.status{
+    display:inline-block;
+    background:#00aa55;
+    color:white;
+    padding:7px 12px;
+    border-radius:20px;
+    margin-top:10px;
+}
+
+.empty{
+    background:white;
+    padding:30px;
+    border-radius:18px;
+    text-align:center;
+    font-size:18px;
+    box-shadow:0 5px 15px rgba(0,0,0,.12);
+}
+
+.back{
+    display:block;
+    width:250px;
+    margin:20px auto;
+    padding:14px;
+    background:#0d6efd;
+    color:white;
+    text-align:center;
+    text-decoration:none;
+    border-radius:50px;
+    font-weight:bold;
+}
+
+.clear{
+    display:block;
+    margin:15px auto;
+    padding:10px 18px;
+    background:#e53935;
+    color:white;
+    border:none;
+    border-radius:10px;
+    font-weight:bold;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>📋 Order History</h1>
+
+<div id="history"></div>
+
+<a href="index.html" class="back">
+🏠 Back to Home
+</a>
+
+<button class="clear" onclick="clearHistory()">
+🗑️ Clear Order History
+</button>
+
+</div>
+
+
+<script>
+
+function showHistory(){
+
+    let history =
+    JSON.parse(localStorage.getItem("orderHistory")) || [];
+
+    let box =
+    document.getElementById("history");
+
+
+    if(history.length === 0){
+
+        box.innerHTML = `
+        
+        <div class="empty">
+        🛒 এখনো কোনো Order History নেই।
+        <br><br>
+        Order করার পরে এখানে আপনার অর্ডার দেখা যাবে।
+        </div>
+
+        `;
+
+        return;
+    }
+
+
+    box.innerHTML = "";
+
+
+    history.forEach((order,index) => {
+
+        let productsHTML = "";
+
+
+        order.products.forEach(product => {
+
+            productsHTML += `
+
+            <div class="product">
+
+            💧 <b>${product.name}</b>
+
+            <br>
+
+            পরিমাণ:
+            ${product.quantity} টি
+
+            × ₹${product.price}
+
+            <br>
+
+            মোট:
+            ₹${product.total}
+
+            </div>
+
+            `;
+
+        });
+
+
+        box.innerHTML += `
+
+        <div class="history-card">
+
+            <div class="order-title">
+            📦 Order #${index + 1}
+            </div>
+
+            <div class="order-date">
+            📅 ${order.date}
+            </div>
+
+            ${productsHTML}
+
+            <div class="total">
+            💰 Total: ₹${order.total}
+            </div>
+
+            <div class="status">
+            🟢 Order Placed
+            </div>
+
+        </div>
+
+        `;
+
+    });
+
+}
+
+
+function clearHistory(){
+
+    if(confirm("আপনি কি সব Order History মুছে ফেলতে চান?")){
+
+        localStorage.removeItem("orderHistory");
+
+        showHistory();
+
+    }
+
+}
+
+
+showHistory();
+
+</script>
+
+</body>
+</html>
