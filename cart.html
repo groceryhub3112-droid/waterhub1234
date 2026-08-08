@@ -3,9 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>Shopping Cart - WATER HUB 2.0</title>
 
 <style>
+
 body{
     font-family:Arial,sans-serif;
     background:#eef8ff;
@@ -25,19 +27,92 @@ h1{
 
 .item{
     background:#fff;
-    padding:15px;
+    padding:20px;
     margin:15px 0;
-    border-radius:15px;
+    border-radius:18px;
     box-shadow:0 5px 15px rgba(0,0,0,.15);
 }
 
+.item h2{
+    margin-top:0;
+    color:#222;
+}
+
+.price{
+    font-size:17px;
+    margin:8px 0;
+}
+
+/* QUANTITY */
+
+.quantity-box{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:15px;
+    margin-top:15px;
+}
+
+.quantity-box button{
+    width:45px;
+    height:45px;
+    border:none;
+    border-radius:50%;
+    font-size:25px;
+    font-weight:bold;
+    color:white;
+    cursor:pointer;
+}
+
+.minus{
+    background:#e53935;
+}
+
+.plus{
+    background:#0d6efd;
+}
+
+.quantity{
+    min-width:40px;
+    text-align:center;
+    font-size:22px;
+    font-weight:bold;
+}
+
+/* ITEM TOTAL */
+
+.item-total{
+    text-align:center;
+    margin-top:12px;
+    font-size:18px;
+    font-weight:bold;
+    color:#0077cc;
+}
+
+/* REMOVE */
+
+.remove-btn{
+    display:block;
+    margin:15px auto 0;
+    padding:8px 15px;
+    border:1px solid #ccc;
+    background:#fff;
+    border-radius:8px;
+    color:#e53935;
+    cursor:pointer;
+}
+
+/* TOTAL */
+
 .total{
     text-align:center;
-    font-size:24px;
+    font-size:25px;
     font-weight:bold;
     color:#e53935;
-    margin-top:20px;
+    margin-top:25px;
 }
+
+/* ORDER BUTTON */
 
 .btn{
     display:block;
@@ -48,10 +123,26 @@ h1{
     color:white;
     text-align:center;
     text-decoration:none;
-    border-radius:12px;
+    border-radius:50px;
     font-size:18px;
+    font-weight:bold;
+    box-shadow:0 5px 15px rgba(13,110,253,.3);
 }
+
+.btn:hover{
+    background:#0b5ed7;
+}
+
+.empty{
+    text-align:center;
+    background:white;
+    padding:30px;
+    border-radius:15px;
+    font-size:20px;
+}
+
 </style>
+
 </head>
 
 <body>
@@ -60,11 +151,343 @@ h1{
 
 <div id="cart-items"></div>
 
-<h2 class="total">Total: ₹<span id="total">0</span></h2>
+<h2 class="total">
+💰 Total: ₹<span id="total">0</span>
+</h2>
 
-<a href="order.html" class="btn">Proceed to Order</a>
+<a href="order.html" class="btn">
+Proceed to Order →
+</a>
 
-<script src="script.js"></script>
+
+<script>
+
+/* ==============================
+   GET CART
+============================== */
+
+function getCart(){
+
+    let data = localStorage.getItem("cart");
+
+    if(!data){
+        data = localStorage.getItem("cartItems");
+    }
+
+    if(!data){
+        data = localStorage.getItem("shoppingCart");
+    }
+
+    if(!data){
+        return [];
+    }
+
+    try{
+        return JSON.parse(data);
+    }
+    catch(e){
+        return [];
+    }
+}
+
+
+/* ==============================
+   SAVE CART
+============================== */
+
+function saveCart(cart){
+
+    localStorage.setItem("cart", JSON.stringify(cart));
+
+}
+
+
+/* ==============================
+   PRODUCT PRICE
+============================== */
+
+const prices = {
+
+    "250 ml Water":120,
+    "500 ml Water":110,
+    "1 Litre Water":90,
+    "2 Litre Water":110,
+    "5 Litre Water":38,
+    "10 Litre Water":58,
+    "20 Litre Water":40
+
+};
+
+
+/* ==============================
+   NORMALIZE CART
+============================== */
+
+function normalizeCart(){
+
+    let oldCart = getCart();
+
+    let newCart = [];
+
+
+    oldCart.forEach(item => {
+
+        let name;
+        let price;
+        let quantity = 1;
+
+
+        /* যদি object হয় */
+
+        if(typeof item === "object"){
+
+            name =
+            item.name ||
+            item.product ||
+            item.title;
+
+            price =
+            Number(item.price) ||
+            prices[name] ||
+            0;
+
+            quantity =
+            Number(item.quantity) ||
+            Number(item.qty) ||
+            1;
+
+        }
+
+        /* যদি শুধু product name হয় */
+
+        else{
+
+            name = item;
+
+            price = prices[name] || 0;
+
+        }
+
+
+        if(!name){
+            return;
+        }
+
+
+        /* একই product থাকলে quantity যোগ হবে */
+
+        let existing =
+        newCart.find(p => p.name === name);
+
+
+        if(existing){
+
+            existing.quantity += quantity;
+
+        }
+        else{
+
+            newCart.push({
+
+                name:name,
+
+                price:price,
+
+                quantity:quantity
+
+            });
+
+        }
+
+    });
+
+
+    saveCart(newCart);
+
+    return newCart;
+
+}
+
+
+/* ==============================
+   SHOW CART
+============================== */
+
+function showCart(){
+
+    let cart = normalizeCart();
+
+    let box =
+    document.getElementById("cart-items");
+
+    let total = 0;
+
+
+    if(cart.length === 0){
+
+        box.innerHTML = `
+        
+        <div class="empty">
+        🛒 আপনার Cart খালি।
+        <br><br>
+        আগে কিছু Product Add করুন।
+        </div>
+
+        `;
+
+        document.getElementById("total").innerText = "0";
+
+        return;
+
+    }
+
+
+    box.innerHTML = "";
+
+
+    cart.forEach((item,index) => {
+
+        let itemTotal =
+        item.price * item.quantity;
+
+        total += itemTotal;
+
+
+        box.innerHTML += `
+
+        <div class="item">
+
+            <h2>💧 ${item.name}</h2>
+
+            <div class="price">
+            প্রতি পিস: ₹${item.price}
+            </div>
+
+
+            <div class="quantity-box">
+
+                <button
+                class="minus"
+                onclick="decrease(${index})">
+                −
+                </button>
+
+
+                <div class="quantity">
+                ${item.quantity}
+                </div>
+
+
+                <button
+                class="plus"
+                onclick="increase(${index})">
+                +
+                </button>
+
+            </div>
+
+
+            <div class="item-total">
+            ${item.quantity} × ₹${item.price}
+            = ₹${itemTotal}
+            </div>
+
+
+            <button
+            class="remove-btn"
+            onclick="removeItem(${index})">
+
+            ❌ Remove
+
+            </button>
+
+        </div>
+
+        `;
+
+    });
+
+
+    document.getElementById("total").innerText =
+    total;
+
+}
+
+
+/* ==============================
+   PLUS
+============================== */
+
+function increase(index){
+
+    let cart = getCart();
+
+    cart[index].quantity =
+    Number(cart[index].quantity || 1) + 1;
+
+    saveCart(cart);
+
+    showCart();
+
+}
+
+
+/* ==============================
+   MINUS
+============================== */
+
+function decrease(index){
+
+    let cart = getCart();
+
+    let quantity =
+    Number(cart[index].quantity || 1);
+
+
+    if(quantity > 1){
+
+        cart[index].quantity =
+        quantity - 1;
+
+    }
+    else{
+
+        cart.splice(index,1);
+
+    }
+
+
+    saveCart(cart);
+
+    showCart();
+
+}
+
+
+/* ==============================
+   REMOVE
+============================== */
+
+function removeItem(index){
+
+    let cart = getCart();
+
+    cart.splice(index,1);
+
+    saveCart(cart);
+
+    showCart();
+
+}
+
+
+/* ==============================
+   START
+============================== */
+
+showCart();
+
+</script>
 
 </body>
 </html>
