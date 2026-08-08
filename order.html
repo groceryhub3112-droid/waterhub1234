@@ -202,11 +202,9 @@ function showCart(){
 
 let cart = getCart();
 
-let box =
-document.getElementById("cartItems");
+let box = document.getElementById("cartItems");
 
 let total = 0;
-
 
 if(cart.length === 0){
 
@@ -224,6 +222,37 @@ return;
 }
 
 
+/* একই Product একসাথে করা */
+
+let products = {};
+
+cart.forEach(item => {
+
+let name = item.name;
+
+let price = Number(item.price);
+
+let qty = Number(item.qty || 1);
+
+
+/* একই নামের Product থাকলে quantity যোগ হবে */
+
+if(products[name]){
+
+products[name].qty += qty;
+
+}else{
+
+products[name] = {
+price: price,
+qty: qty
+};
+
+}
+
+});
+
+
 box.innerHTML = `
 <div class="cart-title">
 🛒 আপনি যা অর্ডার করেছেন
@@ -231,22 +260,17 @@ box.innerHTML = `
 `;
 
 
-cart.forEach(item => {
+/* Product দেখানো */
 
-let name =
-item.name;
+Object.keys(products).forEach(name => {
 
-let price =
-Number(item.price);
+let price = products[name].price;
 
-let qty =
-Number(item.qty || 1);
+let qty = products[name].qty;
 
-let itemTotal =
-price * qty;
+let itemTotal = price * qty;
 
 total += itemTotal;
-
 
 box.innerHTML += `
 
