@@ -307,127 +307,56 @@ document.getElementById("totalPrice").innerHTML =
 
 function sendOrder(){
 
-let name =
-document.getElementById("name").value.trim();
-
-let phone =
-document.getElementById("phone").value.trim();
-
-let address =
-document.getElementById("address").value.trim();
-
-let date =
-document.getElementById("date").value;
-
-let time =
-document.getElementById("time").value;
-
+let name = document.getElementById("name").value.trim();
+let phone = document.getElementById("phone").value.trim();
+let address = document.getElementById("address").value.trim();
+let date = document.getElementById("date").value;
+let time = document.getElementById("time").value;
 
 if(!name || !phone || !address || !date || !time){
 
 alert("সব তথ্য পূরণ করুন।");
-
 return;
 
 }
 
-
 let cart = getCart();
-
 
 if(cart.length === 0){
 
 alert("আপনার Cart খালি।");
-
 return;
 
 }
 
 
-let total = 0;
+/* একই Product-এর Quantity যোগ */
 
-let historyProducts = [];
-
-
-/* =========================
-   CREATE ORDER PRODUCTS
-========================= */
+let products = {};
 
 cart.forEach(item => {
 
-let name =
-item.name;
+let name = item.name;
+let price = Number(item.price);
+let qty = Number(item.qty || 1);
 
-let price =
-Number(item.price);
+if(products[name]){
 
-let qty =
-Number(item.qty || 1);
+products[name].qty += qty;
 
-let itemTotal =
-price * qty;
+}else{
 
-total += itemTotal;
-
-
-historyProducts.push({
-
-name:name,
-
-quantity:qty,
-
-price:price,
-
-total:itemTotal
-
-});
-
-});
-
-
-/* =========================
-   SAVE ORDER HISTORY
-========================= */
-
-let orderHistory =
-JSON.parse(
-localStorage.getItem("orderHistory")
-) || [];
-
-
-let newOrder = {
-
-customerName:name,
-
-phone:phone,
-
-address:address,
-
-deliveryDate:date,
-
-deliveryTime:time,
-
-products:historyProducts,
-
-total:total,
-
-orderDate:new Date().toLocaleString()
-
+products[name] = {
+price: price,
+qty: qty
 };
 
+}
 
-orderHistory.push(newOrder);
-
-
-localStorage.setItem(
-"orderHistory",
-JSON.stringify(orderHistory)
-);
+});
 
 
-/* =========================
-   WHATSAPP MESSAGE
-========================= */
+let total = 0;
 
 let msg = `💧 WATER HUB 2.0
 
@@ -448,12 +377,21 @@ let msg = `💧 WATER HUB 2.0
 `;
 
 
-historyProducts.forEach(product => {
+/* Product List */
 
-msg += `💧 ${product.name}
-পরিমাণ: ${product.quantity} টি
-দাম: ₹${product.price}
-মোট: ₹${product.total}
+Object.keys(products).forEach(productName => {
+
+let price = products[productName].price;
+let qty = products[productName].qty;
+
+let itemTotal = price * qty;
+
+total += itemTotal;
+
+msg += `💧 ${productName}
+পরিমাণ: ${qty} টি
+দাম: ₹${price}
+মোট: ₹${itemTotal}
 
 `;
 
@@ -476,9 +414,7 @@ WATER HUB 2.0
 `;
 
 
-/* =========================
-   OPEN WHATSAPP
-========================= */
+/* WhatsApp */
 
 let url =
 "https://api.whatsapp.com/send?phone=917866945566&text="
