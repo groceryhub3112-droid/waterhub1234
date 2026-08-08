@@ -325,94 +325,155 @@ function showCart(){
 
 function sendOrder(){
 
-    let name =
-        document.getElementById("name").value.trim();
+let name =
+document.getElementById("name").value.trim();
 
-    let phone =
-        document.getElementById("phone").value.trim();
+let phone =
+document.getElementById("phone").value.trim();
 
-    let address =
-        document.getElementById("address").value.trim();
+let address =
+document.getElementById("address").value.trim();
 
-    let date =
-        document.getElementById("date").value;
+let date =
+document.getElementById("date").value;
 
-    let time =
-        document.getElementById("time").value;
-
-
-    if(!name || !phone || !address || !date || !time){
-
-        alert("সব তথ্য পূরণ করুন।");
-
-        return;
-    }
+let time =
+document.getElementById("time").value;
 
 
-    let cart = getCart();
+if(!name || !phone || !address || !date || !time){
 
-    if(cart.length === 0){
+alert("সব তথ্য পূরণ করুন।");
 
-        alert("আপনার Cart খালি।");
+return;
 
-        return;
-    }
-
-
-    let products = {};
-
-    let total = 0;
+}
 
 
-    cart.forEach(item => {
-
-        let name = "";
-        let price = 0;
-        let qty = 1;
+let cart = getCart();
 
 
-        if(typeof item === "object"){
+if(cart.length === 0){
 
-            name =
-                item.name ||
-                item.product ||
-                item.title ||
-                "";
+alert("আপনার Cart খালি।");
 
-            price =
-                Number(item.price) ||
-                prices[name] ||
-                0;
+return;
 
-            qty =
-                Number(item.quantity) ||
-                Number(item.qty) ||
-                1;
-
-        }else{
-
-            name = item;
-
-            price = prices[name] || 0;
-
-        }
+}
 
 
-        if(!products[name]){
+let products = {};
 
-            products[name] = {
-                price:price,
-                qty:0
-            };
-
-        }
-
-        products[name].qty += qty;
-
-    });
+let total = 0;
 
 
-    let msg = `💧 WATER HUB 2.0
+/* PRODUCTS COUNT */
+
+cart.forEach(item => {
+
+let productName = "";
+let price = 0;
+
+
+if(typeof item === "object"){
+
+productName =
+item.name ||
+item.product ||
+item.title ||
+"Unknown Product";
+
+price =
+Number(item.price) ||
+prices[productName] ||
+0;
+
+}else{
+
+productName = item;
+
+price = prices[productName] || 0;
+
+}
+
+
+if(!products[productName]){
+
+products[productName] = {
+qty:0,
+price:price
+};
+
+}
+
+products[productName].qty++;
+
+});
+
+
+/* CREATE HISTORY PRODUCTS */
+
+let historyProducts = [];
+
+
+Object.keys(products).forEach(productName => {
+
+let qty =
+products[productName].qty;
+
+let price =
+products[productName].price;
+
+let itemTotal =
+qty * price;
+
+total += itemTotal;
+
+
+historyProducts.push({
+
+name: productName,
+
+quantity: qty,
+
+price: price,
+
+total: itemTotal
+
+});
+
+});
+
+
+/* SAVE ORDER HISTORY */
+
+let orderHistory =
+JSON.parse(localStorage.getItem("orderHistory")) || [];
+
+
+let newOrder = {
+
+date: date + " " + time,
+
+products: historyProducts,
+
+total: total
+
+};
+
+
+orderHistory.push(newOrder);
+
+
+localStorage.setItem(
+"orderHistory",
+JSON.stringify(orderHistory)
+);
+
+
+/* WHATSAPP MESSAGE */
+
+let msg = `💧 WATER HUB 2.0
 
 🛒 নতুন অর্ডার
 
@@ -431,28 +492,30 @@ function sendOrder(){
 `;
 
 
-    Object.keys(products).forEach(product => {
+Object.keys(products).forEach(productName => {
 
-        let qty = products[product].qty;
+let qty =
+products[productName].qty;
 
-        let price = products[product].price;
+let price =
+products[productName].price;
 
-        let itemTotal = qty * price;
+let itemTotal =
+qty * price;
 
-        total += itemTotal;
 
-
-        msg += `💧 ${product}
+msg += `💧 ${productName}
 পরিমাণ: ${qty} টি
 দাম: ₹${price}
 মোট: ₹${itemTotal}
 
 `;
 
-    });
+});
 
 
-    msg += `━━━━━━━━━━━━━━
+msg += `
+━━━━━━━━━━━━━━
 
 💰 সর্বমোট: ₹${total}
 
@@ -463,20 +526,20 @@ function sendOrder(){
 ━━━━━━━━━━━━━━
 
 ধন্যবাদ ❤️
-WATER HUB 2.0`;
+WATER HUB 2.0
+`;
 
 
-    let url =
-        "https://api.whatsapp.com/send?phone=917866945566&text="
-        + encodeURIComponent(msg);
+/* OPEN WHATSAPP */
+
+let url =
+"https://api.whatsapp.com/send?phone=917866945566&text="
++ encodeURIComponent(msg);
 
 
-    location.href = url;
+location.href = url;
 
 }
-
-
-showCart();
 
 </script>
 </body>
