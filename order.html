@@ -168,173 +168,251 @@ font-weight:bold;
 
 <script>
 
-/* PRODUCT PRICE */
-
 const prices = {
-"250 ml Water":120,
-"500 ml Water":110,
-"1 Litre Water":90,
-"2 Litre Water":110,
-"5 Litre Water":38,
-"10 Litre Water":58,
-"20 Litre Water":40
+    "250 ml Water":120,
+    "500 ml Water":110,
+    "1 Litre Water":90,
+    "2 Litre Water":110,
+    "5 Litre Water":38,
+    "10 Litre Water":58,
+    "20 Litre Water":40
 };
 
 
-/* GET CART */
-
 function getCart(){
 
-let data = localStorage.getItem("cart");
+    let data = localStorage.getItem("cart");
 
-if(!data){
-data = localStorage.getItem("cartItems");
+    if(!data){
+        data = localStorage.getItem("cartItems");
+    }
+
+    if(!data){
+        data = localStorage.getItem("shoppingCart");
+    }
+
+    if(!data){
+        return [];
+    }
+
+    try{
+        return JSON.parse(data);
+    }
+    catch(e){
+        return [];
+    }
 }
 
-if(!data){
-data = localStorage.getItem("shoppingCart");
-}
-
-if(!data){
-return [];
-}
-
-try{
-return JSON.parse(data);
-}
-catch(e){
-return [];
-}
-
-}
-
-
-/* SHOW CART */
 
 function showCart(){
 
-let cart = getCart();
+    let cart = getCart();
 
-let box = document.getElementById("cartItems");
+    let box = document.getElementById("cartItems");
 
-let total = 0;
+    let products = {};
 
-if(cart.length === 0){
+    let total = 0;
 
-box.innerHTML = `
-<div class="empty-cart">
-🛒 আপনার Cart খালি।
-</div>
-`;
 
-document.getElementById("totalPrice").innerHTML =
-"💰 Total Price: ₹0";
+    /* Cart-এর সব product হিসাব করা */
 
-return;
+    cart.forEach(item => {
+
+        let name = "";
+        let price = 0;
+        let qty = 1;
+
+
+        if(typeof item === "object"){
+
+            name =
+                item.name ||
+                item.product ||
+                item.title ||
+                "";
+
+            price =
+                Number(item.price) ||
+                prices[name] ||
+                0;
+
+            /* নতুন Cart-এর quantity */
+
+            qty =
+                Number(item.quantity) ||
+                Number(item.qty) ||
+                1;
+
+        }else{
+
+            name = item;
+
+            price = prices[name] || 0;
+
+            qty = 1;
+
+        }
+
+
+        if(!name) return;
+
+
+        /* একই product একসাথে করা */
+
+        if(products[name]){
+
+            products[name].qty += qty;
+
+        }else{
+
+            products[name] = {
+                price:price,
+                qty:qty
+            };
+
+        }
+
+    });
+
+
+    box.innerHTML = `
+    <div class="cart-title">
+    🛒 আপনি যা অর্ডার করেছেন
+    </div>
+    `;
+
+
+    Object.keys(products).forEach(name => {
+
+        let qty = products[name].qty;
+
+        let price = products[name].price;
+
+        let itemTotal = qty * price;
+
+        total += itemTotal;
+
+
+        box.innerHTML += `
+
+        <div class="cart-item">
+
+            <div class="cart-item-name">
+            💧 ${name}
+            </div>
+
+            <div class="cart-item-info">
+            পরিমাণ: <b>${qty} টি</b> × ₹${price}
+            </div>
+
+            <div class="cart-item-total">
+            মোট: ₹${itemTotal}
+            </div>
+
+        </div>
+
+        `;
+
+    });
+
+
+    document.getElementById("totalPrice").innerHTML =
+        "💰 Total Price: ₹" + total;
+
 }
 
-
-box.innerHTML = `
-<div class="cart-title">
-🛒 আপনি যা অর্ডার করেছেন
-</div>
-`;
-
-
-cart.forEach(item => {
-
-let name = item.name;
-
-let price =
-Number(item.price) ||
-prices[name] ||
-0;
-
-/* ⭐ এখানেই Quantity নেওয়া হচ্ছে */
-
-let quantity =
-Number(item.quantity) || 1;
-
-let itemTotal =
-price * quantity;
-
-total += itemTotal;
-
-
-box.innerHTML += `
-
-<div class="cart-item">
-
-<div class="cart-item-name">
-💧 ${name}
-</div>
-
-<div class="cart-item-info">
-পরিমাণ: <b>${quantity} টি</b> × ₹${price}
-</div>
-
-<div class="cart-item-total">
-মোট: ₹${itemTotal}
-</div>
-
-</div>
-
-`;
-
-});
-
-
-document.getElementById("totalPrice").innerHTML =
-"💰 Total Price: ₹" + total;
-
-}
-
-
-/* WHATSAPP ORDER */
 
 function sendOrder(){
 
-let name =
-document.getElementById("name").value.trim();
+    let name =
+        document.getElementById("name").value.trim();
 
-let phone =
-document.getElementById("phone").value.trim();
+    let phone =
+        document.getElementById("phone").value.trim();
 
-let address =
-document.getElementById("address").value.trim();
+    let address =
+        document.getElementById("address").value.trim();
 
-let date =
-document.getElementById("date").value;
+    let date =
+        document.getElementById("date").value;
 
-let time =
-document.getElementById("time").value;
-
-
-if(!name || !phone || !address || !date || !time){
-
-alert("সব তথ্য পূরণ করুন।");
-
-return;
-
-}
+    let time =
+        document.getElementById("time").value;
 
 
-let cart = getCart();
+    if(!name || !phone || !address || !date || !time){
+
+        alert("সব তথ্য পূরণ করুন।");
+
+        return;
+    }
 
 
-if(cart.length === 0){
+    let cart = getCart();
 
-alert("আপনার Cart খালি।");
+    if(cart.length === 0){
 
-return;
+        alert("আপনার Cart খালি।");
 
-}
-
-
-let total = 0;
+        return;
+    }
 
 
-let msg = `💧 WATER HUB 2.0
+    let products = {};
+
+    let total = 0;
+
+
+    cart.forEach(item => {
+
+        let name = "";
+        let price = 0;
+        let qty = 1;
+
+
+        if(typeof item === "object"){
+
+            name =
+                item.name ||
+                item.product ||
+                item.title ||
+                "";
+
+            price =
+                Number(item.price) ||
+                prices[name] ||
+                0;
+
+            qty =
+                Number(item.quantity) ||
+                Number(item.qty) ||
+                1;
+
+        }else{
+
+            name = item;
+
+            price = prices[name] || 0;
+
+        }
+
+
+        if(!products[name]){
+
+            products[name] = {
+                price:price,
+                qty:0
+            };
+
+        }
+
+        products[name].qty += qty;
+
+    });
+
+
+    let msg = `💧 WATER HUB 2.0
 
 🛒 নতুন অর্ডার
 
@@ -353,36 +431,28 @@ let msg = `💧 WATER HUB 2.0
 `;
 
 
-cart.forEach(item => {
+    Object.keys(products).forEach(product => {
 
-let productName = item.name;
+        let qty = products[product].qty;
 
-let price =
-Number(item.price) ||
-prices[productName] ||
-0;
+        let price = products[product].price;
 
-let quantity =
-Number(item.quantity) || 1;
+        let itemTotal = qty * price;
 
-let itemTotal =
-price * quantity;
-
-total += itemTotal;
+        total += itemTotal;
 
 
-msg += `💧 ${productName}
-পরিমাণ: ${quantity} টি
+        msg += `💧 ${product}
+পরিমাণ: ${qty} টি
 দাম: ₹${price}
 মোট: ₹${itemTotal}
 
 `;
 
-});
+    });
 
 
-msg += `
-━━━━━━━━━━━━━━
+    msg += `━━━━━━━━━━━━━━
 
 💰 সর্বমোট: ₹${total}
 
@@ -393,25 +463,21 @@ msg += `
 ━━━━━━━━━━━━━━
 
 ধন্যবাদ ❤️
-WATER HUB 2.0
-`;
+WATER HUB 2.0`;
 
 
-let url =
-"https://api.whatsapp.com/send?phone=917866945566&text="
-+ encodeURIComponent(msg);
+    let url =
+        "https://api.whatsapp.com/send?phone=917866945566&text="
+        + encodeURIComponent(msg);
 
 
-location.href = url;
+    location.href = url;
 
 }
 
 
-/* START */
-
 showCart();
 
 </script>
-
 </body>
 </html>
