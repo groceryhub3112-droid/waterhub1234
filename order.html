@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="bn">
 <head>
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -30,10 +31,14 @@ font-size:28px;
 margin-bottom:5px;
 }
 
+h3{
+margin-top:10px;
+}
+
 .cart-title{
 color:#0077cc;
 font-size:22px;
-margin-top:20px;
+margin:20px 0;
 }
 
 .cart-item{
@@ -41,24 +46,25 @@ background:#f5faff;
 border:1px solid #d9ecff;
 border-radius:15px;
 padding:15px;
-margin:10px 0;
+margin:12px 0;
 text-align:left;
 }
 
 .cart-item-name{
-font-size:18px;
+font-size:19px;
 font-weight:bold;
 color:#222;
 }
 
 .cart-item-info{
-margin-top:6px;
+margin-top:8px;
 color:#555;
-font-size:16px;
+font-size:17px;
 }
 
 .cart-item-total{
-margin-top:6px;
+margin-top:8px;
+font-size:18px;
 font-weight:bold;
 color:#0077cc;
 }
@@ -73,7 +79,7 @@ margin:15px 0;
 
 #totalPrice{
 color:#e53935;
-font-size:24px;
+font-size:25px;
 font-weight:bold;
 margin:20px 0;
 }
@@ -108,6 +114,10 @@ cursor:pointer;
 margin-top:15px;
 }
 
+button:hover{
+background:#008844;
+}
+
 .back-btn{
 display:block;
 background:#0d6efd;
@@ -119,18 +129,12 @@ margin-top:12px;
 font-weight:bold;
 }
 
-.history-btn{
-display:block;
-background:#6a1b9a;
-color:white;
-text-decoration:none;
-padding:13px;
-border-radius:12px;
-margin-top:12px;
-font-weight:bold;
+hr{
+margin:25px 0;
 }
 
 </style>
+
 </head>
 
 <body>
@@ -151,25 +155,34 @@ font-weight:bold;
 
 <h3>📦 Delivery Details</h3>
 
-<input id="name" placeholder="আপনার নাম">
+<input
+id="name"
+placeholder="আপনার নাম">
 
-<input id="phone" placeholder="মোবাইল নম্বর" type="tel">
+<input
+id="phone"
+placeholder="মোবাইল নম্বর"
+type="tel">
 
-<input id="address" placeholder="ঠিকানা">
+<input
+id="address"
+placeholder="ঠিকানা">
 
 <label>📅 Delivery Date</label>
-<input id="date" type="date">
+
+<input
+id="date"
+type="date">
 
 <label>🕒 Delivery Time</label>
-<input id="time" type="time">
+
+<input
+id="time"
+type="time">
 
 <button onclick="sendOrder()">
 📲 WhatsApp Order
 </button>
-
-<a href="history.html" class="history-btn">
-📋 Order History
-</a>
 
 <a href="index.html" class="back-btn">
 🛒 আরও পণ্য দেখুন
@@ -187,9 +200,23 @@ font-weight:bold;
 function getCart(){
 
 let cart =
-JSON.parse(localStorage.getItem("cart")) || [];
+localStorage.getItem("cart");
 
-return cart;
+if(!cart){
+
+return [];
+
+}
+
+try{
+
+return JSON.parse(cart);
+
+}catch(error){
+
+return [];
+
+}
 
 }
 
@@ -202,9 +229,13 @@ function showCart(){
 
 let cart = getCart();
 
-let box = document.getElementById("cartItems");
+let box =
+document.getElementById("cartItems");
 
 let total = 0;
+
+
+/* CART EMPTY */
 
 if(cart.length === 0){
 
@@ -222,20 +253,31 @@ return;
 }
 
 
-/* একই Product একসাথে করা */
+/* =========================
+   PRODUCTS
+========================= */
 
 let products = {};
 
+
+/*
+   এখানে সবচেয়ে গুরুত্বপূর্ণ বিষয়:
+   item.qty সরাসরি নেওয়া হচ্ছে
+*/
+
 cart.forEach(item => {
 
-let name = item.name;
+let name =
+item.name || "";
 
-let price = Number(item.price);
+let price =
+Number(item.price || 0);
 
-let qty = Number(item.qty || 1);
+let qty =
+Number(item.qty || 1);
 
 
-/* একই নামের Product থাকলে quantity যোগ হবে */
+/* একই Product থাকলে Quantity যোগ */
 
 if(products[name]){
 
@@ -244,8 +286,11 @@ products[name].qty += qty;
 }else{
 
 products[name] = {
-price: price,
-qty: qty
+
+price:price,
+
+qty:qty
+
 };
 
 }
@@ -253,24 +298,32 @@ qty: qty
 });
 
 
+/* =========================
+   DISPLAY
+========================= */
+
 box.innerHTML = `
+
 <div class="cart-title">
 🛒 আপনি যা অর্ডার করেছেন
 </div>
+
 `;
 
 
-/* Product দেখানো */
-
 Object.keys(products).forEach(name => {
 
-let price = products[name].price;
+let price =
+products[name].price;
 
-let qty = products[name].qty;
+let qty =
+products[name].qty;
 
-let itemTotal = price * qty;
+let itemTotal =
+price * qty;
 
 total += itemTotal;
+
 
 box.innerHTML += `
 
@@ -281,11 +334,17 @@ box.innerHTML += `
 </div>
 
 <div class="cart-item-info">
-পরিমাণ: ${qty} টি × ₹${price}
+
+পরিমাণ:
+<strong>${qty} টি</strong>
+× ₹${price}
+
 </div>
 
 <div class="cart-item-total">
+
 মোট: ₹${itemTotal}
+
 </div>
 
 </div>
@@ -295,6 +354,8 @@ box.innerHTML += `
 });
 
 
+/* TOTAL */
+
 document.getElementById("totalPrice").innerHTML =
 "💰 Total Price: ₹" + total;
 
@@ -302,59 +363,96 @@ document.getElementById("totalPrice").innerHTML =
 
 
 /* =========================
-   SEND ORDER
+   WHATSAPP ORDER
 ========================= */
 
 function sendOrder(){
 
-let name = document.getElementById("name").value.trim();
-let phone = document.getElementById("phone").value.trim();
-let address = document.getElementById("address").value.trim();
-let date = document.getElementById("date").value;
-let time = document.getElementById("time").value;
+let customerName =
+document.getElementById("name").value.trim();
 
-if(!name || !phone || !address || !date || !time){
+let phone =
+document.getElementById("phone").value.trim();
+
+let address =
+document.getElementById("address").value.trim();
+
+let date =
+document.getElementById("date").value;
+
+let time =
+document.getElementById("time").value;
+
+
+if(
+!customerName ||
+!phone ||
+!address ||
+!date ||
+!time
+){
 
 alert("সব তথ্য পূরণ করুন।");
+
 return;
 
 }
 
+
 let cart = getCart();
+
 
 if(cart.length === 0){
 
 alert("আপনার Cart খালি।");
+
 return;
 
 }
 
 
-/* একই Product-এর Quantity যোগ */
+/* =========================
+   PRODUCTS
+========================= */
 
 let products = {};
 
 cart.forEach(item => {
 
-let name = item.name;
-let price = Number(item.price);
-let qty = Number(item.qty || 1);
+let productName =
+item.name || "";
 
-if(products[name]){
+let price =
+Number(item.price || 0);
 
-products[name].qty += qty;
+let qty =
+Number(item.qty || 1);
+
+
+/* Quantity ঠিকভাবে যোগ */
+
+if(products[productName]){
+
+products[productName].qty += qty;
 
 }else{
 
-products[name] = {
-price: price,
-qty: qty
+products[productName] = {
+
+price:price,
+
+qty:qty
+
 };
 
 }
 
 });
 
+
+/* =========================
+   WHATSAPP MESSAGE
+========================= */
 
 let total = 0;
 
@@ -364,7 +462,7 @@ let msg = `💧 WATER HUB 2.0
 
 ━━━━━━━━━━━━━━
 
-👤 নাম: ${name}
+👤 নাম: ${customerName}
 
 📞 মোবাইল: ${phone}
 
@@ -377,20 +475,26 @@ let msg = `💧 WATER HUB 2.0
 `;
 
 
-/* Product List */
-
 Object.keys(products).forEach(productName => {
 
-let price = products[productName].price;
-let qty = products[productName].qty;
+let price =
+products[productName].price;
 
-let itemTotal = price * qty;
+let qty =
+products[productName].qty;
+
+let itemTotal =
+price * qty;
 
 total += itemTotal;
 
+
 msg += `💧 ${productName}
+
 পরিমাণ: ${qty} টি
+
 দাম: ₹${price}
+
 মোট: ₹${itemTotal}
 
 `;
@@ -410,15 +514,19 @@ msg += `
 ━━━━━━━━━━━━━━
 
 ধন্যবাদ ❤️
+
 WATER HUB 2.0
 `;
 
 
-/* WhatsApp */
+/* =========================
+   OPEN WHATSAPP
+========================= */
 
 let url =
 "https://api.whatsapp.com/send?phone=917866945566&text="
-+ encodeURIComponent(msg);
++
+encodeURIComponent(msg);
 
 location.href = url;
 
